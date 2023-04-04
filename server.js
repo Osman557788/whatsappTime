@@ -21,7 +21,7 @@ wss.on('connection', (ws, req) => {
 
 const app = express();
 
-app.get("/root/:instance", (req, res) => {
+app.get("/createClient/:instance", (req, res) => {
 
     const whatsappClient = creatClietn(req)
 
@@ -31,45 +31,41 @@ app.get("/root/:instance", (req, res) => {
     
     whatsappClient.on("ready", (session) => {
 
-        console.log("Client is ready!");
-        const workbook = xlsx.readFile("example.xlsx");
-        const sheetName = workbook.SheetNames[0];
-        const sheet = workbook.Sheets[sheetName];
-        const range = xlsx.utils.decode_range(sheet["!ref"]);
-        const text = "رمضان كريم كل عام وانتم بخير";
+        console.log(`Client ${req.params.instance} is ready!`);
 
-        for (let i = range.s.r; i <= range.e.r; i++) {
+        app.get(`/createCampaign/:${req.params.instance}`, (req, res) => {
 
-            console.log('for loop');
+            const workbook = xlsx.readFile("example.xlsx");
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const range = xlsx.utils.decode_range(sheet["!ref"]);
+            const text = "رمضان كريم كل عام وانتم بخير";
 
-            const cell = sheet[xlsx.utils.encode_cell({ r: i, c: 1 })];
+            for (let i = range.s.r; i <= range.e.r; i++) {
 
-            if (cell) {
-                console.log(cell.v);
+                console.log('for loop');
 
-                var phoneNumber = cell.v.toString().replace(/\+/g, "") + "@c.us";
-                if(i == range.e.r){
-                    data = { chatId: phoneNumber, text: text , destroy: true }
-                }else{
+                const cell = sheet[xlsx.utils.encode_cell({ r: i, c: 1 })];
 
-                    data = { chatId: phoneNumber, text: text , destroy: false }
+                if (cell) {
+                    console.log(cell.v);
+
+                    var phoneNumber = cell.v.toString().replace(/\+/g, "") + "@c.us";
+                    if(i == range.e.r){
+                        data = { chatId: phoneNumber, text: text , destroy: true }
+                    }else{
+
+                        data = { chatId: phoneNumber, text: text , destroy: false }
+                    }
+
+                    whatsappMassageQueue.add(
+                        'emails',
+                        data ,
+                        { delay: i * 1000  }
+                    );
                 }
-
-                whatsappMassageQueue.add(
-                    'emails',
-                    data ,
-                    { delay: i * 1000  }
-                );
             }
-        }
-
-        app.get("/sedmassage", (req, res) => {
-            whatsappMassageQueue.add(
-                'emails',
-                {chatId:'201150142991@c.us',text:'hello osman',destroy:false}
-            );
-
-            res.send("massage send!");
+    
         });
 
     });
