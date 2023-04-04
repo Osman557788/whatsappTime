@@ -64,56 +64,14 @@ app.get("/:instance", (req, res) => {
 
     whatsappClient.initialize();
 
-    function restartClient() {
-        whatsappClient.destroy();
-        whatsappClient = new Client();
-        whatsappClient.initialize();
-    }
+    // function restartClient() {
+    //     whatsappClient.destroy();
+    //     whatsappClient = new Client();
+    //     whatsappClient.initialize();
+    // }
     res.send("Hello World!");
 });
 
-app.get("/data", (req, res) => {
-
-    console.log("data");
-
-    whatsappClient.on("ready", (session) => {
-
-        console.log("Client is data!");
-        const workbook = xlsx.readFile("example.xlsx");
-        const sheetName = workbook.SheetNames[0];
-        const sheet = workbook.Sheets[sheetName];
-        const range = xlsx.utils.decode_range(sheet["!ref"]);
-        const text = " data عام وانتم بخير";
-
-        for (let i = range.s.r; i <= range.e.r; i++) {
-
-            console.log('for loop');
-
-            const cell = sheet[xlsx.utils.encode_cell({ r: i, c: 1 })];
-
-            if (cell) {
-                console.log(cell.v);
-
-                var phoneNumber = cell.v.toString().replace(/\+/g, "") + "@c.us";
-                if(i == range.e.r){
-                    data = { chatId: phoneNumber, text: text , destroy: true }
-                }else{
-                    data = { chatId: phoneNumber, text: text , destroy: false }
-                }
-
-                whatsappMassageQueue.add(
-                    'emails',
-                    data ,
-                    { delay: i * 1000  }
-                );
-            }
-        }
-    });
-
-    whatsappClient.initialize();
-
-    res.send("Hello World!");
-});
 
 app.listen(3000, () => {
     console.log("App listening on port 3000!");
@@ -142,25 +100,30 @@ function creatClietn(req){
         console.log(`disconnected`) ;
     });
 
-    client.on("qr", async (qr) => {
-        // Generate QR code as a data URI
-        const qrCodeDataURI = await qrcode.toDataURL(qr);
-
-        // Extract base64-encoded data from data URI
-        const base64Data = qrCodeDataURI.split(",")[1];
-
-        // Convert base64 data to a buffer
-        const buffer = Buffer.from(base64Data, "base64");
-
-        // Save buffer to a file
-        fs.writeFile("../public/whatsappQrcode/qrcode.png", buffer, (err) => {
-            if (err) throw err;
-            console.log("QR code saved to qrcode.png");
-        });
-
-        websockt();
-
+    client.on('qr', qr => {
+        qrcode.generate(qr, {small: true});
     });
+    
+
+    // client.on("qr", async (qr) => {
+    //     // Generate QR code as a data URI
+    //     const qrCodeDataURI = await qrcode.toDataURL(qr);
+
+    //     // Extract base64-encoded data from data URI
+    //     const base64Data = qrCodeDataURI.split(",")[1];
+
+    //     // Convert base64 data to a buffer
+    //     const buffer = Buffer.from(base64Data, "base64");
+
+    //     // Save buffer to a file
+    //     fs.writeFile("../public/whatsappQrcode/qrcode.png", buffer, (err) => {
+    //         if (err) throw err;
+    //         console.log("QR code saved to qrcode.png");
+    //     });
+
+    //     websockt();
+
+    // });
 
     return client ;
 }
@@ -194,6 +157,7 @@ function createQueue(whatsappClient){
     whatsappMassageQueue.process('emails',(job)=> {
 
         console.log('job start'); 
+        
         console.log(job.data.chatId); 
 
         // if(job.data.destroy){
