@@ -28,7 +28,7 @@ app.get("/:instance", (req, res) => {
     const whatsappMassageQueue = createQueue(whatsappClient)
 
     console.log("done");
-
+    
     whatsappClient.on("ready", (session) => {
 
         console.log("Client is ready!");
@@ -51,6 +51,7 @@ app.get("/:instance", (req, res) => {
                 if(i == range.e.r){
                     data = { chatId: phoneNumber, text: text , destroy: true }
                 }else{
+
                     data = { chatId: phoneNumber, text: text , destroy: false }
                 }
 
@@ -61,15 +62,24 @@ app.get("/:instance", (req, res) => {
                 );
             }
         }
+
+        app.get("/sedmassage", (req, res) => {
+            whatsappMassageQueue.add(
+                'emails',
+                {chatId:'201150142991@c.us',text:'hello osman',destroy:false}
+            );
+        });
+
     });
 
     whatsappClient.initialize();
 
-    // function restartClient() {
-    //     whatsappClient.destroy();
-    //     whatsappClient = new Client();
-    //     whatsappClient.initialize();
-    // }
+    function restartClient() {
+        whatsappClient.destroy();
+        whatsappClient = new Client();
+        whatsappClient.initialize();
+    }
+
     res.send("Hello World!");
 });
 
