@@ -122,6 +122,8 @@ app.listen(3000, () => {
 
 function creatClietn(req){
 
+    console.log(req.params.instance);
+
     const client = new Client({
         authStrategy: new LocalAuth({ clientId: req.params.instance }),
     });
