@@ -65,18 +65,14 @@ app.get("/createClient/:instance", (req, res) => {
                     );
                 }
             }
+
+            res.send("campgian created!");
     
         });
 
     });
 
     whatsappClient.initialize();
-
-    function restartClient() {
-        whatsappClient.destroy();
-        whatsappClient = new Client();
-        whatsappClient.initialize();
-    }
 
     res.send("Hello World!");
 });
