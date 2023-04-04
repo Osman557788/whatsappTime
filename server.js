@@ -1,7 +1,8 @@
 const express = require("express");
 const WebSocket = require('ws');
 const Queue = require('bull');
-const qrcode = require("qrcode");
+// const qrcode = require("qrcode");
+const qrcode = require('qrcode-terminal');
 const fs = require("fs");
 const xlsx = require("xlsx");
 const { Client, LocalAuth } = require("whatsapp-web.js");
