@@ -1,0 +1,12 @@
+2023/04/03-18:11:38.565 16808 Reusing MANIFEST /home/osman/Downloads/whatsapp/node/.wwebjs_auth/session-osman2/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2023/04/03-18:11:38.566 16808 Recovering log #10
+2023/04/03-18:11:38.734 16808 Reusing old log /home/osman/Downloads/whatsapp/node/.wwebjs_auth/session-osman2/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/000010.log 
+2023/04/03-18:11:56.450 167e9 Level-0 table #15: started
+2023/04/03-18:11:56.534 167e9 Level-0 table #15: 1121916 bytes OK
+2023/04/03-18:11:56.567 167e9 Delete type=0 #10
+2023/04/03-18:11:56.847 167e9 Compacting 1@1 + 1@2 files
+2023/04/03-18:11:57.009 167e9 Generated table #16@1: 32730 keys, 1268854 bytes
+2023/04/03-18:11:57.009 167e9 Compacted 1@1 + 1@2 files => 1268854 bytes
+2023/04/03-18:11:57.041 167e9 compacted to: files[ 0 0 1 0 0 0 0 ]
+2023/04/03-18:11:57.041 167e9 Delete type=2 #15
+2023/04/03-18:11:57.041 167e9 Delete type=2 #12

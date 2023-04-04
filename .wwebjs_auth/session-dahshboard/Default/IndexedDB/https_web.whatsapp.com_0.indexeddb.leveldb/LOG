@@ -1,0 +1,6 @@
+2023/04/03-17:21:32.271 15468 Creating DB /home/osman/Downloads/whatsapp/node/.wwebjs_auth/session-dahshboard/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb since it was missing.
+2023/04/03-17:21:32.460 15468 Reusing MANIFEST /home/osman/Downloads/whatsapp/node/.wwebjs_auth/session-dahshboard/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2023/04/03-17:21:33.138 15467 Manual compaction at level-0 from '\x00\x01\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x02\x00\x00\x00' @ 0 : 0; will stop at (end)
+2023/04/03-17:22:08.119 15467 Level-0 table #5: started
+2023/04/03-17:22:08.215 15467 Level-0 table #5: 1055963 bytes OK
+2023/04/03-17:22:08.249 15467 Delete type=0 #3
