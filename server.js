@@ -68,6 +68,8 @@ app.get("/root/:instance", (req, res) => {
                 'emails',
                 {chatId:'201150142991@c.us',text:'hello osman',destroy:false}
             );
+
+            res.send("massage send!");
         });
 
     });
