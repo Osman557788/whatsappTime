@@ -1,7 +1,10 @@
 const express = require("express");
 const WebSocket = require('ws');
 const Queue = require('bull');
+
 // const qrcode = require("qrcode");
+
+
 const qrcode = require('qrcode-terminal');
 const fs = require("fs");
 const xlsx = require("xlsx");
@@ -10,7 +13,6 @@ const { Client, LocalAuth } = require("whatsapp-web.js");
 const wss = new WebSocket.Server({ port: 8080 });
 
 websocktClients = [];
-
 
 wss.on('connection', (ws, req) => {
 
@@ -33,7 +35,7 @@ app.get("/createClient/:instance", (req, res) => {
 
         console.log(`Client ${req.params.instance} is ready!`);
 
-        app.get(`/createCampaign/:${req.params.instance}`, (req, res) => {
+        app.get(`/createCampaign/${req.params.instance}`, (req, res) => {
 
             const workbook = xlsx.readFile("example.xlsx");
             const sheetName = workbook.SheetNames[0];
@@ -67,9 +69,7 @@ app.get("/createClient/:instance", (req, res) => {
             }
 
             res.send("campgian created!");
-    
         });
-
     });
 
     whatsappClient.initialize();
