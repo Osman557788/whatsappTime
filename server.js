@@ -21,7 +21,7 @@ wss.on('connection', (ws, req) => {
 
 const app = express();
 
-app.get("/:instance", (req, res) => {
+app.get("/root/:instance", (req, res) => {
 
     const whatsappClient = creatClietn(req)
 
