@@ -37,6 +37,8 @@ app.get("/createClient/:instance", (req, res) => {
 
         app.get(`/createCampaign/${req.params.instance}`, (req, res) => {
 
+            whatsappClient.resetState();
+            
             const workbook = xlsx.readFile("example.xlsx");
             const sheetName = workbook.SheetNames[0];
             const sheet = workbook.Sheets[sheetName];
