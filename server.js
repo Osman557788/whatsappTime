@@ -166,7 +166,7 @@ function creatClietn(req) {
     .then(instance => {
       if (instance) {
         // if user exists, update the record
-        return instance.update({authenticated:true});
+        return instance.update({authenticated:false});
 
       }
     })
