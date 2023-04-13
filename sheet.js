@@ -11,6 +11,4 @@ for (let i = range.s.r; i <= range.e.r; i++) {
     console.log(phoneNumber);
   }
 }
-
-
 umuB2ekmseqm72O14eT60DFVoB8R

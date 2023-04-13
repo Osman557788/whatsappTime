@@ -24,7 +24,7 @@ const app = express();
 
 app.use(bodyParser.json())
 
-app.get("/createClient/:instance", (req, res) => {
+app.get("/createClient/:instance/:userId", (req, res) => {
 
   const whatsappClient = creatClietn(req);
 
@@ -91,18 +91,48 @@ function creatClietn(req) {
   });
 
   client.on("authenticated", (message) => {
+
+
+    Instance.findOrCreate({
+      where: { name: req.params.instance }, // search for a user with name 'John Doe'
+      defaults: { 
+        status: true,
+        user_id:req.params.userId ,
+        authenticated: true,
+        number: "01250142991",
+
+      } // if user not found, create a new user with age 30
+    }).then(([Instance, created]) => {
+      if (created) {
+        // user was created
+        console.log('New user created:', Instance.toJSON());
+      } else {
+        // user was found and updated
+        Instance.authenticated = true;
+
+        Instance.save().then(() => {
+
+          console.log('User updated:', Instance.toJSON());
+
+        });
+      }
+    }).catch((error) => {
+      console.log('Error occurred:', error);
+    });
     
     console.log(`authentication`);
 
-    Instance.create({
-      name: req.params.instance,
-      status: true,
-      user_id: 1 ,
-      authenticated: true,
-      number: "01250142991",
-    }).then((user) => {
+    console.log(client.info);
 
-    });
+    // Instance.create({
+    //   name: req.params.instance,
+    //   status: true,
+    //   user_id: req.params.userId ,
+    //   authenticated: true,
+    //   number: "01250142991",
+    // }).then((user) => {
+
+    // });
 
     websockt({ type: "authenticated" });
   });
@@ -112,7 +142,10 @@ function creatClietn(req) {
   });
 
   client.on("disconnected", (message) => {
+    
     console.log(`disconnected`);
+
+    client.destroy();
   });
 
   client.on("change_state", (message) => {
