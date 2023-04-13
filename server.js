@@ -97,7 +97,7 @@ function creatClietn(req) {
     Instance.create({
       name: req.params.instance,
       status: true,
-      user_id: 2 ,
+      user_id: 1 ,
       authenticated: true,
       number: "01250142991",
     }).then((user) => {
