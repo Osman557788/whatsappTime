@@ -83,7 +83,6 @@ function creatClietn(req) {
       headless: true,
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     },
-    authTimeoutMs:2000,
     qrMaxRetries:5,
     authStrategy: new LocalAuth({ clientId: req.params.instance }),
   });
