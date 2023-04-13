@@ -83,6 +83,8 @@ function creatClietn(req) {
       headless: true,
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     },
+    authTimeoutMs:2000,
+    qrMaxRetries:5,
     authStrategy: new LocalAuth({ clientId: req.params.instance }),
   });
 
@@ -102,17 +104,17 @@ function creatClietn(req) {
         number: "01250142991",
 
       } // if user not found, create a new user with age 30
-    }).then(([Instance, created]) => {
+    }).then(([instance, created]) => {
       if (created) {
         // user was created
-        console.log('New user created:', Instance.toJSON());
+        console.log('New user created:', instance.toJSON());
       } else {
         // user was found and updated
-        Instance.authenticated = true;
+        instance.authenticated = true;
 
-        Instance.save().then(() => {
+        instance.save().then(() => {
 
-          console.log('User updated:', Instance.toJSON());
+          console.log('User updated:', instance.toJSON());
 
         });
       }
@@ -135,14 +137,47 @@ function creatClietn(req) {
     // });
 
     websockt({ type: "authenticated" });
+
   });
 
   client.on("auth_failure", (message) => {
+
+    Instance.findOne({ where: { name:req.params.instance } })
+    .then(instance => {
+      if (instance) {
+        // if user exists, update the record
+        return instance.update({authenticated:true});
+
+      }
+    })
+    .then(updatedInstance => {
+      console.log(updatedInstance);
+    })
+    .catch(error => {
+      console.error(error);
+    });
+
     console.log(`auth_failure `);
+
   });
 
   client.on("disconnected", (message) => {
-    
+
+    Instance.findOne({ where: { name:req.params.instance } })
+    .then(instance => {
+      if (instance) {
+        // if user exists, update the record
+        return instance.update({authenticated:true});
+
+      }
+    })
+    .then(updatedInstance => {
+      console.log(updatedInstance);
+    })
+    .catch(error => {
+      console.error(error);
+    });
+
     console.log(`disconnected`);
 
     client.destroy();
