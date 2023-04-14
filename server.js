@@ -83,7 +83,9 @@ function creatClietn(req) {
       headless: true,
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     },
+
     qrMaxRetries:5, 
+
     takeoverTimeoutMs:3000,
 
     authStrategy: new LocalAuth({ clientId: req.params.instance }),
@@ -181,7 +183,6 @@ function creatClietn(req) {
 
     console.log(`disconnected`);
 
-    client.destroy();
   });
 
   client.on("change_state", (message) => {
