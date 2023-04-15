@@ -84,7 +84,7 @@ function creatClietn(req) {
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     },
 
-    qrMaxRetries:5, 
+    qrMaxRetries:3, 
 
     takeoverTimeoutMs:3000,
 
@@ -181,6 +181,10 @@ function creatClietn(req) {
       console.error(error);
     });
 
+    const directoryPath = `./.wwebjs_auth/session-${req.params.instance}`
+
+    deleteSession(directoryPath)
+
     console.log(`disconnected`);
 
   });
@@ -265,4 +269,22 @@ function createQueue(whatsappClient) {
   });
 
   return whatsappMassageQueue;
+}
+
+
+
+function  deleteSession(directoryPath){
+
+  setTimeout(() => {
+  
+    // Delete directory
+    fs.rmdir(directoryPath, { recursive: true }, (err) => {
+      if (err) {
+        console.error(`Error deleting directory: ${err}`);
+      } else {
+        console.log('Directory deleted successfully');
+      }
+    });
+  }, 3000); // Wait 5 seconds before deleting the directory
+
 }
