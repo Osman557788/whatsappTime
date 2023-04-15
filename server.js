@@ -43,7 +43,6 @@ app.get("/createClient/:instance/:userId", (req, res) => {
       const sheet = workbook.Sheets[sheetName];
       const range = xlsx.utils.decode_range(sheet["!ref"]);
       
-
       for (let i = range.s.r; i <= range.e.r; i++) {
 
 
@@ -301,7 +300,7 @@ function createQueue(whatsappClient) {
 
     if(job.data.media){
 
-      const media = new MessageMedia( `../storage/app/${job.data.media}` , base64Image);
+      const media = new MessageMedia( `../storage/app/${job.data.media}` , 'base64Image' );
 
       whatsappClient.sendMessage(job.data.chatId, media );
 
@@ -309,7 +308,7 @@ function createQueue(whatsappClient) {
     
     if(job.data.text){
 
-      whatsappClient.sendMessage(job.data.chatId, text );
+      whatsappClient.sendMessage(job.data.chatId, job.data.text );
 
     }
 
