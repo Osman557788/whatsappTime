@@ -9,7 +9,7 @@ const qrcode = require("qrcode");
 
 const fs = require("fs");
 const xlsx = require("xlsx");
-const { Client, LocalAuth } = require("whatsapp-web.js");
+const { Client, LocalAuth , MessageMedia} = require("whatsapp-web.js");
 
 const wss = new WebSocket.Server({ port: 8080 });
 
@@ -33,6 +33,7 @@ app.get("/createClient/:instance/:userId", (req, res) => {
   console.log("done");
 
   whatsappClient.on("ready", (session) => {
+
     console.log(`Client ${req.params.instance} is ready!`);
 
     app.post(`/createCampaign/${req.params.instance}`, (req, res) => {
@@ -41,29 +42,56 @@ app.get("/createClient/:instance/:userId", (req, res) => {
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
       const range = xlsx.utils.decode_range(sheet["!ref"]);
-      const text = req.body.text ;
+      
 
       for (let i = range.s.r; i <= range.e.r; i++) {
 
+
         console.log("for loop");
+
 
         const cell = sheet[xlsx.utils.encode_cell({ r: i, c: 1 })];
 
         if (cell) {
-          console.log(cell.v);
 
           var phoneNumber = cell.v.toString().replace(/\+/g, "") + "@c.us";
-          if (i == range.e.r) {
-            data = { chatId: phoneNumber, text: text, destroy: true };
-          } else {
-            data = { chatId: phoneNumber, text: text, destroy: false };
+
+          if(req.body.text ){
+
+            const text = req.body.text ;
+
+            data = { chatId: phoneNumber, text: text };
+
+            whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
+
           }
 
-          whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
+          if(req.body.media ){
+
+            const media = req.body.media ;
+
+            data = { chatId: phoneNumber, media: media };
+
+            whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
+
+          }
+
+          if(req.body.video ){
+
+            const video = req.body.video ;
+
+            data = { chatId: phoneNumber, video: video };
+
+            whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
+
+          }
+
+          // whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
         }
       }
 
       res.send("campgian created!");
+
     });
   });
 
@@ -271,18 +299,28 @@ function createQueue(whatsappClient) {
 
   whatsappMassageQueue.process("emails", (job) => {
 
-    console.log("job start");
+    if(job.data.media){
 
-    console.log(job.data.chatId);
+      const media = new MessageMedia( `../storage/app/${job.data.media}` , base64Image);
+
+      whatsappClient.sendMessage(job.data.chatId, media );
+
+    }
     
-    return whatsappClient.sendMessage(job.data.chatId, job.data.text);
+    if(job.data.text){
+
+      whatsappClient.sendMessage(job.data.chatId, text );
+
+    }
+
+    console.log(job.data.media);
+    
+    
 
   });
 
   return whatsappMassageQueue;
 }
-
-
 
 function  deleteSession(directoryPath){
 
