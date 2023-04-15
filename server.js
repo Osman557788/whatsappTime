@@ -181,9 +181,13 @@ function creatClietn(req) {
       console.error(error);
     });
 
+    client.destroy();
+
     const directoryPath = `./.wwebjs_auth/session-${req.params.instance}`
 
     deleteSession(directoryPath)
+
+    
 
     console.log(`disconnected`);
 
