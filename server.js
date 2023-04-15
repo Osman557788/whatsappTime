@@ -86,7 +86,7 @@ function creatClietn(req) {
 
     qrMaxRetries:3, 
 
-    takeoverTimeoutMs:3000,
+    takeoverTimeoutMs:15000,
 
     authStrategy: new LocalAuth({ clientId: req.params.instance }),
   });
@@ -159,6 +159,13 @@ function creatClietn(req) {
     .catch(error => {
       console.error(error);
     });
+
+    client.destroy();
+
+    const directoryPath = `./.wwebjs_auth/session-${req.params.instance}`;
+
+    deleteSession(directoryPath)
+
 
     console.log(`auth_failure `);
 
