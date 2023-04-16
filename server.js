@@ -300,7 +300,11 @@ function createQueue(whatsappClient) {
 
     if(job.data.media){
 
-      const media = new MessageMedia( `../storage/app/${job.data.media}` , 'base64Image' );
+      const imageData = fs.readFileSync(`../storage/app/${job.data.media}`);
+
+      const base64Image = imageData.toString('base64');
+
+      const media = new MessageMedia( 'image/png' , base64Image );
 
       whatsappClient.sendMessage(job.data.chatId, media );
 
