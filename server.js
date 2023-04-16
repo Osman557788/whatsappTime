@@ -90,7 +90,7 @@ app.get("/createClient/:instance/:userId", (req, res) => {
           
           if(req.body.document ){
 
-            const video = req.body.document ;
+            const document = req.body.document ;
 
             data = { chatId: phoneNumber, document: document };
 
