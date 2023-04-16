@@ -3,6 +3,9 @@ const WebSocket = require("ws");
 const Queue = require("bull");
 const Instance = require("./models/instance");
 const bodyParser = require('body-parser');
+const mime = require('mime-types');
+
+const path = require('path');
 
 const qrcode = require("qrcode");
 
@@ -304,7 +307,9 @@ function createQueue(whatsappClient) {
 
       const base64Image = imageData.toString('base64');
 
-      const media = new MessageMedia( 'image/png' , base64Image );
+      const MIMEtype = getMIMEtype(job.data.media);
+
+      const media = new MessageMedia( MIMEtype , base64Image );
 
       whatsappClient.sendMessage(job.data.chatId, media );
 
@@ -338,5 +343,16 @@ function  deleteSession(directoryPath){
       }
     });
   }, 3000); // Wait 5 seconds before deleting the directory
+
+}
+
+
+function getMIMEtype(fileName){
+
+  const path = require('path');
+
+  const extension = path.extname(`../storage/app/${fileName}`).slice(1);
+
+  return  mime.lookup(extension);
 
 }
