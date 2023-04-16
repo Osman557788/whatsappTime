@@ -87,6 +87,16 @@ app.get("/createClient/:instance/:userId", (req, res) => {
             whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
 
           }
+          
+          if(req.body.document ){
+
+            const video = req.body.document ;
+
+            data = { chatId: phoneNumber, document: document };
+
+            whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
+
+          }
 
           // whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
         }
@@ -312,6 +322,22 @@ function createQueue(whatsappClient) {
       const media = new MessageMedia( MIMEtype , base64Image );
 
       whatsappClient.sendMessage(job.data.chatId, media );
+
+    }
+    
+    if(job.data.document){
+
+      const document =  MessageMedia.fromFilePath(`../storage/app/${job.data.document}`);
+
+      whatsappClient.sendMessage(job.data.chatId, document );
+
+    }
+
+    if(job.data.video){
+
+      const video =  MessageMedia.fromFilePath(`../storage/app/${job.data.video}`);
+
+      whatsappClient.sendMessage(job.data.chatId, video );
 
     }
     
