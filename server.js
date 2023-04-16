@@ -349,8 +349,6 @@ function createQueue(whatsappClient) {
 
     console.log(job.data.media);
     
-    
-
   });
 
   return whatsappMassageQueue;
