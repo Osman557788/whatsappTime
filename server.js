@@ -33,7 +33,7 @@ app.get("/createClient/:instance/:userId", (req, res) => {
 
   const whatsappClient = creatClietn(req.params.instance , req.params.userId);
 
-  const whatsappMassageQueue = createQueue(whatsappClient);
+  const whatsappMassageQueue = createQueue(whatsappClient , req.params.instance );
 
   const instance = req.params.instance ;
 
@@ -288,9 +288,9 @@ function websockt(data) {
 
 }
 
-function createQueue(whatsappClient) {
+function createQueue(whatsappClient , instanceName) {
 
-  const whatsappMassageQueue = new Queue("emails", {
+  const whatsappMassageQueue = new Queue( instanceName , {
     removeOnComplete: true,
     removeOnFail: true,
   });
