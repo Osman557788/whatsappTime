@@ -35,7 +35,9 @@ app.get("/createClient/:instance/:userId", (req, res) => {
 
   const whatsappMassageQueue = createQueue(whatsappClient);
 
-  console.log("done");
+  const instance = req.params.instance ;
+
+  console.log(instance);
 
   whatsappClient.on("ready", (session) => {
 
