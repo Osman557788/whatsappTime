@@ -175,6 +175,7 @@ function creatClietn(instanceName,userId) {
 
     const data = {
       type: "authenticated",
+      InstanceName: instanceName,
     };
 
     websockt(data);
