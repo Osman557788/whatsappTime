@@ -55,7 +55,6 @@ app.get("/createClient/:instance/:userId", (req, res) => {
 
         console.log("for loop");
 
-
         const cell = sheet[xlsx.utils.encode_cell({ r: i, c: 1 })];
 
         if (cell) {
@@ -109,6 +108,7 @@ app.get("/createClient/:instance/:userId", (req, res) => {
       res.send("campgian created!");
 
     });
+    
   });
 
   whatsappClient.initialize();
@@ -173,7 +173,11 @@ function creatClietn(instanceName,userId) {
 
     console.log(client.info);
 
-    websockt({ type: "authenticated" });
+    const data = {
+      type: "authenticated",
+    };
+
+    websockt(data);
 
   });
 
@@ -452,7 +456,7 @@ function initializeAllClients(){
 
               }
 
-              // whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
+              
             }
           }
 
