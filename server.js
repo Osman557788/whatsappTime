@@ -27,9 +27,11 @@ const app = express();
 
 app.use(bodyParser.json())
 
+initializeAllClients();
+
 app.get("/createClient/:instance/:userId", (req, res) => {
 
-  const whatsappClient = creatClietn(req);
+  const whatsappClient = creatClietn(req.params.instance , req.params.userId);
 
   const whatsappMassageQueue = createQueue(whatsappClient);
 
@@ -116,7 +118,7 @@ app.listen(3000, () => {
   console.log("App listening on port 3000!");
 });
 
-function creatClietn(req) {
+function creatClietn(instanceName,userId) {
 
   const client = new Client({
     puppeteer: {
@@ -128,7 +130,7 @@ function creatClietn(req) {
 
     takeoverTimeoutMs:15000,
 
-    authStrategy: new LocalAuth({ clientId: req.params.instance }),
+    authStrategy: new LocalAuth({ clientId: instanceName }),
   });
 
   client.on("message", (message) => {
@@ -139,17 +141,17 @@ function creatClietn(req) {
 
 
     Instance.findOrCreate({
-      where: { name: req.params.instance }, // search for a user with name 'John Doe'
+      where: { name: instanceName }, // search for a user with name 'John Doe'
       defaults: { 
         status: true,
-        user_id:req.params.userId ,
+        user_id:userId ,
         authenticated: true,
         number: "01250142991",
 
       } // if user not found, create a new user with age 30
     }).then(([instance, created]) => {
       if (created) {
-        // user was created
+    
         console.log('New user created:', instance.toJSON());
       } else {
         // user was found and updated
@@ -169,51 +171,41 @@ function creatClietn(req) {
 
     console.log(client.info);
 
-    // Instance.create({
-    //   name: req.params.instance,
-    //   status: true,
-    //   user_id: req.params.userId ,
-    //   authenticated: true,
-    //   number: "01250142991",
-    // }).then((user) => {
-
-    // });
-
     websockt({ type: "authenticated" });
 
   });
 
-  client.on("auth_failure", (message) => {
+  // client.on("auth_failure", (message) => {
 
-    Instance.findOne({ where: { name:req.params.instance } })
-    .then(instance => {
-      if (instance) {
-        // if user exists, update the record
-        return instance.update({authenticated:true});
+  //   Instance.findOne({ where: { name:req.params.instance } })
+  //   .then(instance => {
+  //     if (instance) {
+  //       // if user exists, update the record
+  //       return instance.update({authenticated:true});
 
-      }
-    })
-    .then(updatedInstance => {
-      console.log(updatedInstance);
-    })
-    .catch(error => {
-      console.error(error);
-    });
+  //     }
+  //   })
+  //   .then(updatedInstance => {
+  //     console.log(updatedInstance);
+  //   })
+  //   .catch(error => {
+  //     console.error(error);
+  //   });
 
-    client.destroy();
+  //   client.destroy();
 
-    const directoryPath = `./.wwebjs_auth/session-${req.params.instance}`;
+  //   const directoryPath = `./.wwebjs_auth/session-${req.params.instance}`;
 
-    deleteSession(directoryPath)
+  //   deleteSession(directoryPath)
 
 
-    console.log(`auth_failure `);
+  //   console.log(`auth_failure `);
 
-  });
+  // });
 
   client.on("disconnected", (message) => {
 
-    Instance.findOne({ where: { name:req.params.instance } })
+    Instance.findOne({ where: { name:instanceName } })
     .then(instance => {
       if (instance) {
         // if user exists, update the record
@@ -230,7 +222,7 @@ function creatClietn(req) {
 
     client.destroy();
 
-    const directoryPath = `./.wwebjs_auth/session-${req.params.instance}`
+    const directoryPath = `./.wwebjs_auth/session-${instanceName}`
 
     deleteSession(directoryPath)
 
@@ -259,7 +251,7 @@ function creatClietn(req) {
     const buffer = Buffer.from(base64Data, "base64");
 
     // Save buffer to a file
-    fs.writeFile(`../public/whatsappQrcode/${req.params.instance}.png`,buffer,(err) => {
+    fs.writeFile(`../public/whatsappQrcode/${instanceName}.png`,buffer,(err) => {
 
       if (err) throw err;
 
@@ -267,11 +259,11 @@ function creatClietn(req) {
 
     });
 
-    var QrCodeImage = `whatsappQrcode/${req.params.instance}.png`;
+    var QrCodeImage = `whatsappQrcode/${instanceName}.png`;
 
     const data = {
       type: "qrcode",
-      InstanceName: req.params.instance,
+      InstanceName: instanceName,
       imageSrc: QrCodeImage,
     };
 
@@ -378,5 +370,102 @@ function getMIMEtype(fileName){
   const extension = path.extname(`../storage/app/${fileName}`).slice(1);
 
   return  mime.lookup(extension);
+
+}
+
+
+function initializeAllClients(){
+
+  Instance.findAll({
+    where: {
+      authenticated: true
+    }
+  }).then(instances => {
+    instances.forEach(instance => {
+      
+      const whatsappClient = creatClietn(instance.name , instance.user_id);
+
+      const whatsappMassageQueue = createQueue(whatsappClient);
+
+      console.log("done");
+
+      whatsappClient.on("ready", (session) => {
+
+        console.log(`Client ${instance.name} is ready!`);
+
+        app.post(`/createCampaign/${instance.name}`, (req, res) => {
+
+          const workbook = xlsx.readFile(`../storage/app/${req.body.excelfile}`);
+          const sheetName = workbook.SheetNames[0];
+          const sheet = workbook.Sheets[sheetName];
+          const range = xlsx.utils.decode_range(sheet["!ref"]);
+          
+          for (let i = range.s.r; i <= range.e.r; i++) {
+
+
+            console.log("for loop");
+
+
+            const cell = sheet[xlsx.utils.encode_cell({ r: i, c: 1 })];
+
+            if (cell) {
+
+              var phoneNumber = cell.v.toString().replace(/\+/g, "") + "@c.us";
+
+              if(req.body.text ){
+
+                const text = req.body.text ;
+
+                data = { chatId: phoneNumber, text: text };
+
+                whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
+
+              }
+
+              if(req.body.media ){
+
+                const media = req.body.media ;
+
+                data = { chatId: phoneNumber, media: media };
+
+                whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
+
+              }
+
+              if(req.body.video ){
+
+                const video = req.body.video ;
+
+                data = { chatId: phoneNumber, video: video };
+
+                whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
+
+              }
+              
+              if(req.body.document ){
+
+                const document = req.body.document ;
+
+                data = { chatId: phoneNumber, document: document };
+
+                whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
+
+              }
+
+              // whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
+            }
+          }
+
+          res.send("campgian created!");
+
+        });
+      });
+
+      whatsappClient.initialize();
+
+    });
+  }).catch(error => {
+    // Handle any errors
+  });
 
 }
