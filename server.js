@@ -27,7 +27,7 @@ const app = express();
 
 app.use(bodyParser.json())
 
-initializeAllClients();
+// initializeAllClients();
 
 app.get("/createClient/:instance/:userId", (req, res) => {
 
@@ -374,98 +374,96 @@ function getMIMEtype(fileName){
 }
 
 
-function initializeAllClients(){
+// function initializeAllClients(){
 
-  Instance.findAll({
-    where: {
-      authenticated: true
-    }
-  }).then(instances => {
-    instances.forEach(instance => {
+//   Instance.findAll({
+//     where: {
+//       authenticated: true
+//     }
+//   }).then(instances => {
+//     instances.forEach(instance => {
       
-      const whatsappClient = creatClietn(instance.name , instance.user_id);
+//       const whatsappClient = creatClietn(instance.name , instance.user_id);
 
-      const whatsappMassageQueue = createQueue(whatsappClient);
+//       const whatsappMassageQueue = createQueue(whatsappClient);
 
-      console.log("done");
+//       console.log("done");
 
-      whatsappClient.on("ready", (session) => {
+//       whatsappClient.on("ready", (session) => {
 
-        console.log(`Client ${instance.name} is ready!`);
+//         console.log(`Client ${instance.name} is ready!`);
 
-        app.post(`/createCampaign/${instance.name}`, (req, res) => {
+//         app.post(`/createCampaign/${instance.name}`, (req, res) => {
 
-          const workbook = xlsx.readFile(`../storage/app/${req.body.excelfile}`);
-          const sheetName = workbook.SheetNames[0];
-          const sheet = workbook.Sheets[sheetName];
-          const range = xlsx.utils.decode_range(sheet["!ref"]);
+//           const workbook = xlsx.readFile(`../storage/app/${req.body.excelfile}`);
+//           const sheetName = workbook.SheetNames[0];
+//           const sheet = workbook.Sheets[sheetName];
+//           const range = xlsx.utils.decode_range(sheet["!ref"]);
           
-          for (let i = range.s.r; i <= range.e.r; i++) {
+//           for (let i = range.s.r; i <= range.e.r; i++) {
 
+//             console.log("for loop");
 
-            console.log("for loop");
+//             const cell = sheet[xlsx.utils.encode_cell({ r: i, c: 1 })];
 
+//             if (cell) {
 
-            const cell = sheet[xlsx.utils.encode_cell({ r: i, c: 1 })];
+//               var phoneNumber = cell.v.toString().replace(/\+/g, "") + "@c.us";
 
-            if (cell) {
+//               if(req.body.text ){
 
-              var phoneNumber = cell.v.toString().replace(/\+/g, "") + "@c.us";
+//                 const text = req.body.text ;
 
-              if(req.body.text ){
+//                 data = { chatId: phoneNumber, text: text };
 
-                const text = req.body.text ;
+//                 whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
 
-                data = { chatId: phoneNumber, text: text };
+//               }
 
-                whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
+//               if(req.body.media ){
 
-              }
+//                 const media = req.body.media ;
 
-              if(req.body.media ){
+//                 data = { chatId: phoneNumber, media: media };
 
-                const media = req.body.media ;
+//                 whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
 
-                data = { chatId: phoneNumber, media: media };
+//               }
 
-                whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
+//               if(req.body.video ){
 
-              }
+//                 const video = req.body.video ;
 
-              if(req.body.video ){
+//                 data = { chatId: phoneNumber, video: video };
 
-                const video = req.body.video ;
+//                 whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
 
-                data = { chatId: phoneNumber, video: video };
-
-                whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
-
-              }
+//               }
               
-              if(req.body.document ){
+//               if(req.body.document ){
 
-                const document = req.body.document ;
+//                 const document = req.body.document ;
 
-                data = { chatId: phoneNumber, document: document };
+//                 data = { chatId: phoneNumber, document: document };
 
-                whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
+//                 whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
 
-              }
+//               }
 
-              // whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
-            }
-          }
+//               // whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
+//             }
+//           }
 
-          res.send("campgian created!");
+//           res.send("campgian created!");
 
-        });
-      });
+//         });
+//       });
 
-      whatsappClient.initialize();
+//       whatsappClient.initialize();
 
-    });
-  }).catch(error => {
-    // Handle any errors
-  });
+//     });
+//   }).catch(error => {
+//     // Handle any errors
+//   });
 
-}
+// }
