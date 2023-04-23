@@ -73,6 +73,8 @@ app.get("/createClient/:instance/:userId", (req, res) => {
 
           if(req.body.image ){
 
+            console.log('image');
+
             const media = req.body.image ;
 
             data = { chatId: phoneNumber, media: media };
