@@ -46,6 +46,7 @@ app.get("/createClient/:instance/:userId", (req, res) => {
     app.post(`/createCampaign/${req.params.instance}`, (req, res) => {
 
       const workbook = xlsx.readFile(`../storage/app/${req.body.excelfile}`);
+
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
       const range = xlsx.utils.decode_range(sheet["!ref"]);
@@ -71,11 +72,11 @@ app.get("/createClient/:instance/:userId", (req, res) => {
 
           }
 
-          if(req.body.image ){
+          if(req.body.media ){
 
             console.log('image');
 
-            const media = req.body.image ;
+            const media = req.body.media ;
 
             data = { chatId: phoneNumber, media: media };
 
