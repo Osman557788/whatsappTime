@@ -100,11 +100,11 @@ app.get("/createClient/:instance/:userId", (req, res) => {
 
             data = { chatId: phoneNumber, document: document };
 
-            whatsappMassageQueue.add("emails", data, { delay: i * 5000 });
+            whatsappMassageQueue.add("emails", data, { delay: i * 10000 });
 
           }
 
-          // whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
+          
         }
       }
 
