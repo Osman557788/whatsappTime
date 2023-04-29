@@ -80,7 +80,7 @@ app.get("/createClient/:instance/:userId", (req, res) => {
 
             data = { chatId: phoneNumber, media: media };
 
-            whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
+            whatsappMassageQueue.add("emails", data, { delay: i * 100000 });
 
           }
 
@@ -90,7 +90,7 @@ app.get("/createClient/:instance/:userId", (req, res) => {
 
             data = { chatId: phoneNumber, video: video };
 
-            whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
+            whatsappMassageQueue.add("emails", data, { delay: i * 100000 });
 
           }
           
@@ -426,7 +426,7 @@ function initializeAllClients(){
 
                 data = { chatId: phoneNumber, text: text };
 
-                whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
+                whatsappMassageQueue.add("emails", data, { delay: i * 100000 });
 
               }
 
@@ -436,7 +436,7 @@ function initializeAllClients(){
 
                 data = { chatId: phoneNumber, media: media };
 
-                whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
+                whatsappMassageQueue.add("emails", data, { delay: i * 100000 });
 
               }
 
@@ -446,7 +446,7 @@ function initializeAllClients(){
 
                 data = { chatId: phoneNumber, video: video };
 
-                whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
+                whatsappMassageQueue.add("emails", data, { delay: i * 100000 });
 
               }
               
@@ -456,7 +456,7 @@ function initializeAllClients(){
 
                 data = { chatId: phoneNumber, document: document };
 
-                whatsappMassageQueue.add("emails", data, { delay: i * 1000 });
+                whatsappMassageQueue.add("emails", data, { delay: i * 100000 });
 
               }
 
