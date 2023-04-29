@@ -68,7 +68,7 @@ app.get("/createClient/:instance/:userId", (req, res) => {
 
             data = { chatId: phoneNumber, text: text };
 
-            whatsappMassageQueue.add("emails", data, { delay: i * 90000 });
+            whatsappMassageQueue.add("emails", data, { delay: i * 900000 });
 
           }
 
