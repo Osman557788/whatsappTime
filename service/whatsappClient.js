@@ -139,6 +139,19 @@ function creatWhatsappClient(instanceName,userId) {
     return client;
 }
 
+function deleteSession(directoryPath) {
+  setTimeout(() => {
+    // Delete directory
+    fs.rmdir(directoryPath, { recursive: true }, (err) => {
+      if (err) {
+        console.error(`Error deleting directory: ${err}`);
+      } else {
+        console.log("Directory deleted successfully");
+      }
+    });
+  }, 3000); // Wait 5 seconds before deleting the directory
+}
+
 function sendToWebsocktClient(clientId, data) {
   // Find the client connection in the clients map
   const socktClient = websocketClients.get(clientId);

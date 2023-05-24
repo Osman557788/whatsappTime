@@ -1,5 +1,9 @@
 const whatsappClient = require('../service/whatsappClient');
 const sendWhatsappMassageJob = require('../queue/sendWhatsappMassageJob');
+const fs = require("fs");
+const xlsx = require("xlsx");
+const Instance = require("../models/instance");
+
 
 const index = (req, res) => {
     res.send("hello mustafa");
@@ -9,13 +13,16 @@ const create = (req, res) => {
     
     const whatsapp = whatsappClient.creatWhatsappClient(req.params.instance , req.params.userId );
 
-    // const whatsappMassageQueue = sendWhatsappMassageJob.createSendMassageQueue( whatsapp , req.params.instance);
+    const whatsappMassageQueue = sendWhatsappMassageJob.createSendMassageQueue( whatsapp , req.params.instance);
+
 
     const instance = req.params.instance ;
     
-    client.on("ready", (session) => {
+    whatsapp.on("ready", (session) => {
 
         console.log(`Client ${req.params.instance} is ready!`);
+
+        const app = req.app;
     
         app.post(`/createCampaign/${req.params.instance}`, (req, res) => {
     
@@ -27,40 +34,39 @@ const create = (req, res) => {
           
           for (let i = range.s.r; i <= range.e.r; i++) {
     
-    
             console.log("for loop");
     
             const cell = sheet[xlsx.utils.encode_cell({ r: i, c: 1 })];
     
-            // if (cell) {
+            if (cell) {
     
-            //   var phoneNumber = cell.v.toString().replace(/\+/g, "") + "@c.us";
+              var phoneNumber = cell.v.toString().replace(/\+/g, "") + "@c.us";
     
-            //   if(req.body.text ){
+              if(req.body.text ){
     
-            //     const text = req.body.text ;
+                const text = req.body.text ;
     
-            //     data = { chatId: phoneNumber, text: text };
+                data = { chatId: phoneNumber, text: text };
     
-            //     whatsappMassageQueue.add("massage",JSON.stringify(data) , { delay: i * 10000 });
+                whatsappMassageQueue.add("massage", data , { delay: i * 10000 });
     
-            //   }
+              }
     
-            //   if(req.body.media ){
+              if(req.body.media ){
     
-            //     console.log('image');
+                console.log('image');
     
-            //     const media = req.body.media ;
+                const media = req.body.media ;
 
-            //     console.log(media);
+                console.log(media);
     
-            //     data = { chatId: phoneNumber, media: media };
+                data = { chatId: phoneNumber, media: media };
     
-            //     whatsappMassageQueue.add("massage", JSON.stringify(data) , { delay: i * 10000 });
+                whatsappMassageQueue.add("massage", JSON.stringify(data) , { delay: i * 10000 });
     
-            //   }
+              }
               
-            // }
+            }
           }
     
           res.send("campgian created!");
@@ -69,7 +75,7 @@ const create = (req, res) => {
         
     });
     
-    client.initialize();
+    whatsapp.initialize();
 
     res.send("hello ali ");
 };

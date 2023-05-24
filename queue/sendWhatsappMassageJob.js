@@ -16,28 +16,27 @@ function createSendMassageQueue(whatsappClient, instanceName) {
       console.log(`Job ${job.data.chatId} has failed with ${err.message}`);
     });
   
-    whatsappMassageQueue.process("emails", (job) => {
-        
-      
+    whatsappMassageQueue.process("massage", (job) => {
   
-    //   if (job.data.media) {
-    //     const media = MessageMedia.fromFilePath(
-    //       `../storage/app/${job.data.media}`
-    //     );
+      if (job.data.media) {
+        const media = MessageMedia.fromFilePath(
+          `../storage/app/${job.data.media}`
+        );
   
-    //     whatsappClient.sendMessage(job.data.chatId, media);
-    //   }
-
+        whatsappClient.sendMessage(job.data.chatId, media);
+      }
   
-    //   if (job.data.text) {
-    //     whatsappClient.sendMessage(job.data.chatId, job.data.text);
-    //   }
+      if (job.data.text) {
+        whatsappClient.sendMessage(job.data.chatId , job.data.text);
+      }
   
-    //   console.log(job.data.media);
+      console.log(job.data.media);
     });
   
     return whatsappMassageQueue;
 }
 
 
-module.exports = createSendMassageQueue();
+module.exports = {
+    createSendMassageQueue:createSendMassageQueue
+};
