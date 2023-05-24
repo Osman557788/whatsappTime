@@ -2,116 +2,100 @@ const express = require("express");
 const WebSocket = require("ws");
 const Queue = require("bull");
 const Instance = require("./models/instance");
-const bodyParser = require('body-parser');
-const mime = require('mime-types');
+const bodyParser = require("body-parser");
+const mime = require("mime-types");
 
-const path = require('path');
+const path = require("path");
 
 const qrcode = require("qrcode");
-
+const url = require("url");
 
 const fs = require("fs");
 const xlsx = require("xlsx");
-const { Client, LocalAuth , MessageMedia} = require("whatsapp-web.js");
+const { Client, LocalAuth, MessageMedia } = require("whatsapp-web.js");
 
 const wss = new WebSocket.Server({ port: 8080 });
 
 websocktClients = [];
 
 wss.on("connection", (ws, req) => {
-  console.log("WebSocket connected");
+  const queryParams = url.parse(req.url, true).query;
+  const clientId = queryParams.clientId;
+  console.log(`WebSocket connected ${clientId}`);
   websocktClients.push(ws);
 });
 
 const app = express();
 
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 
-initializeAllClients();
+// initializeAllClients();
 
 app.get("/createClient/:instance/:userId", (req, res) => {
+  const whatsappClient = creatClietn(req.params.instance, req.params.userId);
 
-  const whatsappClient = creatClietn(req.params.instance , req.params.userId);
+  const whatsappMassageQueue = createQueue(whatsappClient, req.params.instance);
 
-  const whatsappMassageQueue = createQueue(whatsappClient , req.params.instance );
-
-  const instance = req.params.instance ;
+  const instance = req.params.instance;
 
   console.log(instance);
 
   whatsappClient.on("ready", (session) => {
-
     console.log(`Client ${req.params.instance} is ready!`);
 
     app.post(`/createCampaign/${req.params.instance}`, (req, res) => {
-
       const workbook = xlsx.readFile(`../storage/app/${req.body.excelfile}`);
 
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
       const range = xlsx.utils.decode_range(sheet["!ref"]);
-      
+
       for (let i = range.s.r; i <= range.e.r; i++) {
-
-
         console.log("for loop");
 
         const cell = sheet[xlsx.utils.encode_cell({ r: i, c: 1 })];
 
         if (cell) {
-
           var phoneNumber = cell.v.toString().replace(/\+/g, "") + "@c.us";
 
-          if(req.body.text ){
-
-            const text = req.body.text ;
+          if (req.body.text) {
+            const text = req.body.text;
 
             data = { chatId: phoneNumber, text: text };
 
             whatsappMassageQueue.add("emails", data, { delay: i * 10000 });
-
           }
 
-          if(req.body.media ){
+          if (req.body.media) {
+            console.log("image");
 
-            console.log('image');
-
-            const media = req.body.media ;
+            const media = req.body.media;
 
             data = { chatId: phoneNumber, media: media };
 
             whatsappMassageQueue.add("emails", data, { delay: i * 10000 });
-
           }
 
-          if(req.body.video ){
-
-            const video = req.body.video ;
+          if (req.body.video) {
+            const video = req.body.video;
 
             data = { chatId: phoneNumber, video: video };
 
             whatsappMassageQueue.add("emails", data, { delay: i * 10000 });
-
           }
-          
-          if(req.body.document ){
 
-            const document = req.body.document ;
+          if (req.body.document) {
+            const document = req.body.document;
 
             data = { chatId: phoneNumber, document: document };
 
             whatsappMassageQueue.add("emails", data, { delay: i * 10000 });
-
           }
-
-          
         }
       }
 
       res.send("campgian created!");
-
     });
-    
   });
 
   whatsappClient.initialize();
@@ -123,17 +107,16 @@ app.listen(3000, () => {
   console.log("App listening on port 3000!");
 });
 
-function creatClietn(instanceName,userId) {
-
+function creatClietn(instanceName, userId) {
   const client = new Client({
     puppeteer: {
       headless: true,
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     },
 
-    qrMaxRetries:3, 
+    qrMaxRetries: 3,
 
-    takeoverTimeoutMs:15000,
+    takeoverTimeoutMs: 15000,
 
     authStrategy: new LocalAuth({ clientId: instanceName }),
   });
@@ -143,35 +126,31 @@ function creatClietn(instanceName,userId) {
   });
 
   client.on("authenticated", (message) => {
-
-
     Instance.findOrCreate({
       where: { name: instanceName }, // search for a user with name 'John Doe'
-      defaults: { 
+      defaults: {
         status: true,
-        user_id:userId ,
+        user_id: userId,
         authenticated: true,
         number: "01250142991",
+      }, // if user not found, create a new user with age 30
+    })
+      .then(([instance, created]) => {
+        if (created) {
+          console.log("New user created:", instance.toJSON());
+        } else {
+          // user was found and updated
+          instance.authenticated = true;
 
-      } // if user not found, create a new user with age 30
-    }).then(([instance, created]) => {
-      if (created) {
-    
-        console.log('New user created:', instance.toJSON());
-      } else {
-        // user was found and updated
-        instance.authenticated = true;
+          instance.save().then(() => {
+            console.log("User updated:", instance.toJSON());
+          });
+        }
+      })
+      .catch((error) => {
+        console.log("Error occurred:", error);
+      });
 
-        instance.save().then(() => {
-
-          console.log('User updated:', instance.toJSON());
-
-        });
-      }
-    }).catch((error) => {
-      console.log('Error occurred:', error);
-    });
-    
     console.log(`authentication`);
 
     console.log(client.info);
@@ -182,7 +161,6 @@ function creatClietn(instanceName,userId) {
     };
 
     websockt(data);
-
   });
 
   // client.on("auth_failure", (message) => {
@@ -208,46 +186,38 @@ function creatClietn(instanceName,userId) {
 
   //   deleteSession(directoryPath)
 
-
   //   console.log(`auth_failure `);
 
   // });
 
   client.on("disconnected", (message) => {
-
-    Instance.findOne({ where: { name:instanceName } })
-    .then(instance => {
-      if (instance) {
-        // if user exists, update the record
-        return instance.update({authenticated:false});
-
-      }
-    })
-    .then(updatedInstance => {
-      console.log(updatedInstance);
-    })
-    .catch(error => {
-      console.error(error);
-    });
+    Instance.findOne({ where: { name: instanceName } })
+      .then((instance) => {
+        if (instance) {
+          // if user exists, update the record
+          return instance.update({ authenticated: false });
+        }
+      })
+      .then((updatedInstance) => {
+        console.log(updatedInstance);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
 
     client.destroy();
 
-    const directoryPath = `./.wwebjs_auth/session-${instanceName}`
+    const directoryPath = `./.wwebjs_auth/session-${instanceName}`;
 
-    deleteSession(directoryPath)
-
-    
+    deleteSession(directoryPath);
 
     console.log(`disconnected`);
-
   });
 
   client.on("change_state", (message) => {
-    
     console.log(`change_state`);
 
     clietn.resetState();
-
   });
 
   client.on("qr", async (qr) => {
@@ -261,13 +231,15 @@ function creatClietn(instanceName,userId) {
     const buffer = Buffer.from(base64Data, "base64");
 
     // Save buffer to a file
-    fs.writeFile(`../public/whatsappQrcode/${instanceName}.png`,buffer,(err) => {
+    fs.writeFile(
+      `../public/whatsappQrcode/${instanceName}.png`,
+      buffer,
+      (err) => {
+        if (err) throw err;
 
-      if (err) throw err;
-
-      console.log("QR code saved to qrcode.png");
-
-    });
+        console.log("QR code saved to qrcode.png");
+      }
+    );
 
     var QrCodeImage = `whatsappQrcode/${instanceName}.png`;
 
@@ -278,14 +250,12 @@ function creatClietn(instanceName,userId) {
     };
 
     websockt(data);
-
   });
 
   return client;
 }
 
 function websockt(data) {
-
   const jsonData = JSON.stringify(data);
 
   websocktClients.forEach((client) => {
@@ -293,12 +263,10 @@ function websockt(data) {
       client.send(jsonData);
     }
   });
-
 }
 
-function createQueue(whatsappClient , instanceName) {
-
-  const whatsappMassageQueue = new Queue( instanceName , {
+function createQueue(whatsappClient, instanceName) {
+  const whatsappMassageQueue = new Queue(instanceName, {
     removeOnComplete: true,
     removeOnFail: true,
   });
@@ -312,168 +280,149 @@ function createQueue(whatsappClient , instanceName) {
   });
 
   whatsappMassageQueue.process("emails", (job) => {
-
-    if(job.data.media){
-
+    if (job.data.media) {
       const imageData = fs.readFileSync(`../storage/app/${job.data.media}`);
 
-      const base64Image = imageData.toString('base64');
+      const base64Image = imageData.toString("base64");
 
       const MIMEtype = getMIMEtype(job.data.media);
 
-      const media = new MessageMedia( MIMEtype , base64Image );
+      const media = new MessageMedia(MIMEtype, base64Image);
 
-      whatsappClient.sendMessage(job.data.chatId, media );
-
-    }
-    
-    if(job.data.document){
-
-      const document =  MessageMedia.fromFilePath(`../storage/app/${job.data.document}`);
-
-      whatsappClient.sendMessage(job.data.chatId, document );
-
+      whatsappClient.sendMessage(job.data.chatId, media);
     }
 
-    if(job.data.video){
+    if (job.data.document) {
+      const document = MessageMedia.fromFilePath(
+        `../storage/app/${job.data.document}`
+      );
 
-      const video =  MessageMedia.fromFilePath(`../storage/app/${job.data.video}`);
-
-      whatsappClient.sendMessage(job.data.chatId, video );
-
+      whatsappClient.sendMessage(job.data.chatId, document);
     }
-    
-    if(job.data.text){
 
-      whatsappClient.sendMessage(job.data.chatId, job.data.text );
+    if (job.data.video) {
+      const video = MessageMedia.fromFilePath(
+        `../storage/app/${job.data.video}`
+      );
 
+      whatsappClient.sendMessage(job.data.chatId, video);
+    }
+
+    if (job.data.text) {
+      whatsappClient.sendMessage(job.data.chatId, job.data.text);
     }
 
     console.log(job.data.media);
-    
   });
 
   return whatsappMassageQueue;
 }
 
-function  deleteSession(directoryPath){
-
+function deleteSession(directoryPath) {
   setTimeout(() => {
-  
     // Delete directory
     fs.rmdir(directoryPath, { recursive: true }, (err) => {
       if (err) {
         console.error(`Error deleting directory: ${err}`);
       } else {
-        console.log('Directory deleted successfully');
+        console.log("Directory deleted successfully");
       }
     });
   }, 3000); // Wait 5 seconds before deleting the directory
-
 }
 
-
-function getMIMEtype(fileName){
-
-  const path = require('path');
+function getMIMEtype(fileName) {
+  const path = require("path");
 
   const extension = path.extname(`../storage/app/${fileName}`).slice(1);
 
-  return  mime.lookup(extension);
-
+  return mime.lookup(extension);
 }
 
-
-function initializeAllClients(){
-
+function initializeAllClients() {
   Instance.findAll({
     where: {
-      authenticated: true
-    }
-  }).then(instances => {
-    instances.forEach(instance => {
-      
-      const whatsappClient = creatClietn(instance.name , instance.user_id);
+      authenticated: true,
+    },
+  })
+    .then((instances) => {
+      instances.forEach((instance) => {
+        const whatsappClient = creatClietn(instance.name, instance.user_id);
 
-      const whatsappMassageQueue = createQueue(whatsappClient , instance.name);
+        const whatsappMassageQueue = createQueue(whatsappClient, instance.name);
 
-      console.log("done");
+        console.log("done");
 
-      whatsappClient.on("ready", (session) => {
+        whatsappClient.on("ready", (session) => {
+          console.log(`Client ${instance.name} is ready!`);
 
-        console.log(`Client ${instance.name} is ready!`);
+          app.post(`/createCampaign/${instance.name}`, (req, res) => {
+            const workbook = xlsx.readFile(
+              `../storage/app/${req.body.excelfile}`
+            );
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const range = xlsx.utils.decode_range(sheet["!ref"]);
 
-        app.post(`/createCampaign/${instance.name}`, (req, res) => {
+            for (let i = range.s.r; i <= range.e.r; i++) {
+              console.log("for loop");
 
-          const workbook = xlsx.readFile(`../storage/app/${req.body.excelfile}`);
-          const sheetName = workbook.SheetNames[0];
-          const sheet = workbook.Sheets[sheetName];
-          const range = xlsx.utils.decode_range(sheet["!ref"]);
-          
-          for (let i = range.s.r; i <= range.e.r; i++) {
+              const cell = sheet[xlsx.utils.encode_cell({ r: i, c: 1 })];
 
-            console.log("for loop");
+              if (cell) {
+                var phoneNumber =
+                  cell.v.toString().replace(/\+/g, "") + "@c.us";
 
-            const cell = sheet[xlsx.utils.encode_cell({ r: i, c: 1 })];
+                if (req.body.text) {
+                  const text = req.body.text;
 
-            if (cell) {
+                  data = { chatId: phoneNumber, text: text };
 
-              var phoneNumber = cell.v.toString().replace(/\+/g, "") + "@c.us";
+                  whatsappMassageQueue.add("emails", data, {
+                    delay: i * 10000,
+                  });
+                }
 
-              if(req.body.text ){
+                if (req.body.media) {
+                  const media = req.body.media;
 
-                const text = req.body.text ;
+                  data = { chatId: phoneNumber, media: media };
 
-                data = { chatId: phoneNumber, text: text };
+                  whatsappMassageQueue.add("emails", data, {
+                    delay: i * 10000,
+                  });
+                }
 
-                whatsappMassageQueue.add("emails", data, { delay: i * 10000 });
+                if (req.body.video) {
+                  const video = req.body.video;
 
+                  data = { chatId: phoneNumber, video: video };
+
+                  whatsappMassageQueue.add("emails", data, {
+                    delay: i * 10000,
+                  });
+                }
+
+                if (req.body.document) {
+                  const document = req.body.document;
+
+                  data = { chatId: phoneNumber, document: document };
+
+                  whatsappMassageQueue.add("emails", data, {
+                    delay: i * 10000,
+                  });
+                }
               }
-
-              if(req.body.media ){
-
-                const media = req.body.media ;
-
-                data = { chatId: phoneNumber, media: media };
-
-                whatsappMassageQueue.add("emails", data, { delay: i * 10000 });
-
-              }
-
-              if(req.body.video ){
-
-                const video = req.body.video ;
-
-                data = { chatId: phoneNumber, video: video };
-
-                whatsappMassageQueue.add("emails", data, { delay: i * 10000 });
-
-              }
-              
-              if(req.body.document ){
-
-                const document = req.body.document ;
-
-                data = { chatId: phoneNumber, document: document };
-
-                whatsappMassageQueue.add("emails", data, { delay: i * 10000 });
-
-              }
-
-              
             }
-          }
 
-          res.send("campgian created!");
-
+            res.send("campgian created!");
+          });
         });
+
+        whatsappClient.initialize();
       });
-
-      whatsappClient.initialize();
-
+    })
+    .catch((error) => {
+      // Handle any errors
     });
-  }).catch(error => {
-    // Handle any errors
-  });
-
 }
