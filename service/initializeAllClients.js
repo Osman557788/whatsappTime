@@ -19,10 +19,10 @@ function initializeAllClients(app){
             
             whatsapp.on("ready", (session) => {
 
-                console.log(`Client ${req.params.instance} is ready!`);
+                console.log(`Client ${instance.name} is ready!`);
         
             
-                app.post(`/createCampaign/${req.params.instance}`, (req, res) => {
+                app.post(`/createCampaign/${instance.name}`, (req, res) => {
             
                     const workbook = xlsx.readFile(`../storage/app/${req.body.excelfile}`);
                 
