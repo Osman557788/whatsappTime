@@ -345,7 +345,7 @@ function initializeAllClients() {
       authenticated: true,
     },
   })
-    .then((instances) => {
+  .then((instances) => {
       instances.forEach((instance) => {
         const whatsappClient = creatClietn(instance.name, instance.user_id);
 

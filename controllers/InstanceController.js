@@ -1,6 +1,5 @@
 const whatsappClient = require('../service/whatsappClient');
 const sendWhatsappMassageJob = require('../queue/sendWhatsappMassageJob');
-const fs = require("fs");
 const xlsx = require("xlsx");
 const Instance = require("../models/instance");
 
