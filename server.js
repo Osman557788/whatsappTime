@@ -29,7 +29,7 @@ const app = express();
 
 app.use(bodyParser.json());
 
-// initializeAllClients();
+initializeAllClients();
 
 app.get("/instance/createClient/:instance/:userId", (req, res) => {
   const whatsappClient = creatClietn(req.params.instance, req.params.userId);
