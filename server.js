@@ -31,7 +31,7 @@ app.use(bodyParser.json());
 
 // initializeAllClients();
 
-app.get("/createClient/:instance/:userId", (req, res) => {
+app.get("instance/createClient/:instance/:userId", (req, res) => {
   const whatsappClient = creatClietn(req.params.instance, req.params.userId);
 
   const whatsappMassageQueue = createQueue(whatsappClient, req.params.instance);
@@ -43,7 +43,7 @@ app.get("/createClient/:instance/:userId", (req, res) => {
   whatsappClient.on("ready", (session) => {
     console.log(`Client ${req.params.instance} is ready!`);
 
-    app.post(`instance/createCampaign/${req.params.instance}`, (req, res) => {
+    app.post(`createCampaign/${req.params.instance}`, (req, res) => {
       const workbook = xlsx.readFile(`../storage/app/${req.body.excelfile}`);
 
       const sheetName = workbook.SheetNames[0];
