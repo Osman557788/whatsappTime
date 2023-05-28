@@ -31,7 +31,7 @@ app.use(bodyParser.json());
 
 // initializeAllClients();
 
-app.get("instance/createClient/:instance/:userId", (req, res) => {
+app.get("/instance/createClient/:instance/:userId", (req, res) => {
   const whatsappClient = creatClietn(req.params.instance, req.params.userId);
 
   const whatsappMassageQueue = createQueue(whatsappClient, req.params.instance);
