@@ -43,6 +43,8 @@ app.get("/instance/createClient/:instance/:userId", (req, res) => {
   whatsappClient.on("ready", (session) => {
     console.log(`Client ${req.params.instance} is ready!`);
 
+    console.log(whatsappClient.info);
+
     app.post(`/createCampaign/${req.params.instance}`, (req, res) => {
       const workbook = xlsx.readFile(`../storage/app/${req.body.excelfile}`);
 
@@ -159,6 +161,7 @@ function creatClietn(instanceName, userId) {
     };
 
     websockt(data);
+
   });
 
   // client.on("auth_failure", (message) => {

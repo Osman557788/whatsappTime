@@ -20,6 +20,8 @@ function initializeAllClients(app){
             whatsapp.on("ready", (session) => {
 
                 console.log(`Client ${instance.name} is ready!`);
+
+                console.log(whatsapp.info);
         
             
                 app.post(`/createCampaign/${instance.name}`, (req, res) => {
