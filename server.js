@@ -153,8 +153,6 @@ function creatClietn(instanceName, userId) {
 
     console.log(`authentication`);
 
-    console.log(client.info);
-
     const data = {
       type: "authenticated",
       InstanceName: instanceName,
@@ -355,6 +353,8 @@ function initializeAllClients() {
 
         whatsappClient.on("ready", (session) => {
           console.log(`Client ${instance.name} is ready!`);
+
+          console.log(whatsappClient.info);
 
           app.post(`/createCampaign/${instance.name}`, (req, res) => {
             const workbook = xlsx.readFile(
