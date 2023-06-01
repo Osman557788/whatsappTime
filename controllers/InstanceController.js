@@ -86,11 +86,9 @@ const create = (req, res) => {
 
             let nestedArray = req.body[i];
 
-            let phoneNumber = nestedArray.chatID;
-
             console.log(nestedArray);
 
-            let chatID = phoneNumber.replace(/\+/g, "") + "@c.us";
+            let chatID = nestedArray.chatId.toString().replace(/\+/g, "") + "@c.us";
 
             if(nestedArray.type == 'text'){
             
