@@ -73,7 +73,7 @@ function initializeAllClients(app){
             
                 });
 
-                app.post(`/sendWhatsAppMessage/${req.params.instance}`, (req, res) => {
+                app.post(`/sendWhatsAppMessage/${instance.name}`, (req, res) => {
   
         
                     console.log(req.body);
