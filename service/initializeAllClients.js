@@ -82,31 +82,32 @@ function initializeAllClients(app){
             
                         for (let i = 0; i < req.body.length; i++) {
               
-                          let nestedArray = req.body[i];
+                            let nestedArray = req.body[i];
               
-                          let phoneNumber = nestedArray.chatID.toString().replace(/\+/g, "") + "@c.us";
+                            let phoneNumber = nestedArray.chatID;
+                            let chatID = phoneNumber.toString().replace(/\+/g, "") + "@c.us";
               
-                          if(nestedArray.type == 'text'){
-                          
-                            const text = nestedArray.text ;
+                            if(nestedArray.type == 'text'){
+                            
+                                const text = nestedArray.text ;
+                    
+                                data = { chatId: chatID, text: text };
+                                console.log(data)
+                                whatsappMassageQueue.add("massage", data , { delay: i * 10000 });
                 
-                            data = { chatId: phoneNumber, text: text };
-                            console.log(data)
-                            whatsappMassageQueue.add("massage", data , { delay: i * 10000 });
+                            }
               
-                          }
-              
-                          if(nestedArray.type == 'media' ){
-              
-                            const media = nestedArray.media ;
+                            if(nestedArray.type == 'media' ){
                 
-                            data = { chatId: phoneNumber, media: media };
-              
-                            console.log(data)
+                                const media = nestedArray.media ;
+                    
+                                data = { chatId: chatID , media: media };
                 
-                            whatsappMassageQueue.add("massage", data , { delay: i * 10000 });
-              
-                          } 
+                                console.log(data)
+                    
+                                whatsappMassageQueue.add("massage", data , { delay: i * 10000 });
+                
+                            } 
                         }
               
                     }
