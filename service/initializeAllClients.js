@@ -85,7 +85,8 @@ function initializeAllClients(app){
                             let nestedArray = req.body[i];
               
                             let phoneNumber = nestedArray.chatID;
-                            let chatID = phoneNumber.toString().replace(/\+/g, "") + "@c.us";
+
+                            let chatID = phoneNumber.replace(/\+/g, "") + "@c.us";
               
                             if(nestedArray.type == 'text'){
                             
