@@ -86,27 +86,31 @@ const create = (req, res) => {
 
             let nestedArray = req.body[i];
 
-            let phoneNumber = nestedArray.chatID.replace(/\+/g, "") + "@c.us";
+            let phoneNumber = nestedArray.chatID;
+
+            console.log(phoneNumber);
+
+            let chatID = phoneNumber.replace(/\+/g, "") + "@c.us";
 
             if(nestedArray.type == 'text'){
             
-              const text = nestedArray.text ;
-  
-              data = { chatId: phoneNumber, text: text };
-              console.log(data)
-              whatsappMassageQueue.add("massage", data , { delay: i * 10000 });
+                const text = nestedArray.text ;
+    
+                data = { chatId: chatID, text: text };
+                console.log(data)
+                whatsappMassageQueue.add("massage", data , { delay: i * 10000 });
 
             }
 
             if(nestedArray.type == 'media' ){
 
-              const media = nestedArray.media ;
-  
-              data = { chatId: phoneNumber, media: media };
+                const media = nestedArray.media ;
+    
+                data = { chatId: chatID , media: media };
 
-              console.log(data)
-  
-              whatsappMassageQueue.add("massage", data , { delay: i * 10000 });
+                console.log(data)
+    
+                whatsappMassageQueue.add("massage", data , { delay: i * 10000 });
 
             } 
           }
