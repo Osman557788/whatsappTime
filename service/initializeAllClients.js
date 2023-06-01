@@ -72,6 +72,51 @@ function initializeAllClients(app){
                     res.send("campgian created!");
             
                 });
+
+                app.post(`/sendWhatsAppMessage/${req.params.instance}`, (req, res) => {
+  
+        
+                    console.log(req.body);
+                      
+                    if(Array.isArray(req.body)){
+            
+                      for (let i = 0; i < req.body.length; i++) {
+            
+                        let nestedArray = req.body[i];
+            
+                        if (Array.isArray(nestedArray)) {
+            
+                          let phoneNumber = nestedArray['chatID'].toString().replace(/\+/g, "") + "@c.us";
+            
+                          if(nestedArray['type'] == 'text'){
+                          
+                            const text = nestedArray['text'] ;
+                
+                            data = { chatId: phoneNumber, text: text };
+                
+                            whatsappMassageQueue.add("massage", data , { delay: i * 10000 });
+                
+                          }
+            
+                          if(nestedArray['type'] == 'media' ){
+                
+                            const media = nestedArray['media'] ;
+                
+                            data = { chatId: phoneNumber, media: media };
+                
+                            whatsappMassageQueue.add("massage", data , { delay: i * 10000 });
+                
+                          }
+                          
+            
+                        }
+                      }
+            
+                    }
+              
+                    res.send("massage sended !");
+              
+                  });
                 
             });
             

@@ -30,7 +30,7 @@ function createSendMassageQueue(whatsappClient, instanceName) {
         whatsappClient.sendMessage(job.data.chatId , job.data.text);
       }
   
-      console.log(job.data.media);
+  
     });
   
     return whatsappMassageQueue;
