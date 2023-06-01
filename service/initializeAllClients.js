@@ -84,32 +84,30 @@ function initializeAllClients(app){
             
                         let nestedArray = req.body[i];
             
-                        if (Array.isArray(nestedArray)) {
-            
-                          let phoneNumber = nestedArray['chatID'].toString().replace(/\+/g, "") + "@c.us";
-            
-                          if(nestedArray['type'] == 'text'){
-                          
+                        let phoneNumber = nestedArray['chatID'].toString().replace(/\+/g, "") + "@c.us";
+        
+                        if(nestedArray['type'] == 'text'){
+                        
                             const text = nestedArray['text'] ;
                 
                             data = { chatId: phoneNumber, text: text };
                 
                             whatsappMassageQueue.add("massage", data , { delay: i * 10000 });
-                
-                          }
             
-                          if(nestedArray['type'] == 'media' ){
-                
+                        }
+        
+                        if(nestedArray['type'] == 'media' ){
+            
                             const media = nestedArray['media'] ;
                 
                             data = { chatId: phoneNumber, media: media };
                 
                             whatsappMassageQueue.add("massage", data , { delay: i * 10000 });
-                
-                          }
-                          
             
                         }
+                          
+            
+                        
                       }
             
                     }
