@@ -114,7 +114,7 @@ function initializeAllClients(app){
               
                     res.send("massage sended !");
               
-                  });
+                });
                 
             });
             
