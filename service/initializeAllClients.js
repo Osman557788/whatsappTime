@@ -57,12 +57,18 @@ function initializeAllClients(app){
                                 console.log('image');
                     
                                 const media = req.body.media ;
-                
-                                console.log(media);
+
+                                for (let i = 0; i < media.length; i++) {
+
+                                    console.log(media[i]);
                     
-                                data = { chatId: phoneNumber, media: media };
+                                    let image = media[i];
                     
-                                whatsappMassageQueue.add("massage", JSON.stringify(data) , { delay: i * 10000 });
+                    
+                                    data = { chatId: phoneNumber, media: image };
+                    
+                                    whatsappMassageQueue.add("massage", data , { delay: i * 10000 });
+                                }
                     
                             }
                       
