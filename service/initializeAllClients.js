@@ -58,11 +58,11 @@ function initializeAllClients(app){
                     
                                 const media = req.body.media ;
 
-                                for (let i = 0; i < media.length; i++) {
+                                for (let j = 0; j < media.length; j++) {
 
-                                    console.log(media[i]);
+                                    console.log(media[j]);
                     
-                                    let image = media[i];
+                                    let image = media[j];
                     
                     
                                     data = { chatId: phoneNumber, media: image };
