@@ -1,5 +1,5 @@
 const Queue = require('bull');
-const MessageMedia = require("whatsapp-web.js");
+const {MessageMedia} = require("whatsapp-web.js");
 
 
 function createSendMassageQueue(whatsappClient, instanceName) {
