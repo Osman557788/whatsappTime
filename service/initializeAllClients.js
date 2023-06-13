@@ -11,6 +11,7 @@ function initializeAllClients(app){
         },
     })
     .then((instances) => {
+        
         instances.forEach((instance) => {
     
             const whatsapp = whatsappClient.creatWhatsappClient(instance.name , instance.user_id );
